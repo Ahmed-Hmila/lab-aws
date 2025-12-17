@@ -1,52 +1,63 @@
-name: Deploy to AWS
+name: Deploy Infra & Lambda Image
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:  # Permet de lancer manuellement
+      - main                  # Déploie auto à chaque push sur main
+  workflow_dispatch:          # ← Permet de lancer manuellement (bouton dans GitHub)
 
 permissions:
-  contents: read           
-  id-token: write         
+  id-token: write           # Obligatoire pour OIDC
+  contents: read
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      AWS_REGION: us-east-2
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      IMAGE_TAG: ${{ github.sha }}   # Tag unique : commit SHA
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 1. Authentification AWS via OIDC (sécurisé)
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v5.1.1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
-          role-session-name: GitHubActionsSession
+          role-session-name: GitHubActions
 
+      # 2. Login ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          region: ${{ env.AWS_REGION }}
-
-      - name: Build, tag, and push Docker image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: myproject-repo            # À adapter selon ton repo ECR
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      # - name: Update Lambda function code
-      #   run: |
-      #     aws lambda update-function-code \
-      #       --function-name myproject-dev-lambda \
-      #       --image-uri ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ github.sha }}
 
  
+      # 4. Installer Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      # 5. Terraform Init & Apply dans env/dev
+      - name: Terraform Init
+        working-directory: ./infra/env/dev
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./infra/env/dev
+        run: terraform plan -var="image_uri=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Terraform Apply
+        working-directory: ./infra/env/dev
+        run: terraform apply -auto-approve -var="image_uri=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      # 6. Output l'URL de l'API
+      - name: Get API URL
+        working-directory: ./infra/env/dev
+        run: |
+          terraform output -raw api_url
+          terraform output -raw fastapi_docs
