@@ -1,21 +1,22 @@
-# Terraform state files
+# Terraform - NE JAMAIS committer
+.terraform/
+.terraform.lock.hcl    # Attends, NON : on veut le COMMITTER → on l'exclut pas
+
+# États Terraform - TRÈS sensible
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
 
-# Crash logs
-crash.log
-
-# Local .terraform directories (providers, plugins, etc.)
-.terraform/
-
-# Terraform variable files (optionnel, si sensibles)
+# Variables réelles - ne pas committer
 *.tfvars
+*.auto.tfvars
 
-# Terraform lock file (optionnel, mais peut être versionné)
-# .terraform.lock.hcl
+# Mais on autorise l'exemple
+!terraform.tfvars.example
 
-# OS / IDE files
-*.swp
-*.vscode/
-*.idea/
-*.DS_Store
+# Lock file : on le COMMIT (important pour reproductibilité)
+!.terraform.lock.hcl
+
+# Autres
+.DS_Store
+*.log
