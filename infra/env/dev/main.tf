@@ -38,17 +38,34 @@ locals {
 
 # Module Lambda
 module "lambda" {
-  source = "../../../module/lambda"
+  source = "../../module/lambda"
   function_name = "myproject-dev-lambda"
+  image_uri     = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2"
   tags = local.default_tags
   # Ajoute d'autres params comme handler, runtime, etc.
 }
 
 # Module API Gateway
 module "api_gateway" {
-  source = "../../../module/api-gateway"
+  source = "../../module/api-gateway"
   api_name = "myproject-dev-api"
   tags = local.default_tags
   # Intègre avec Lambda si nécessaire
   lambda_arn = module.lambda.lambda_arn
+}
+
+
+output "api_url" {
+  value       = module.api_gateway.api_endpoint
+  description = "URL principale de ton API FastAPI (ajoute https:// devant)"
+}
+
+output "fastapi_docs" {
+  value       = "${module.api_gateway.api_endpoint}/docs"
+  description = "Swagger UI (ajoute https:// devant)"
+}
+
+output "fastapi_openapi" {
+  value       = "${module.api_gateway.api_endpoint}/openapi.json"
+  description = "OpenAPI JSON (ajoute https:// devant)"
 }
