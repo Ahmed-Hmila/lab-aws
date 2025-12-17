@@ -3,7 +3,7 @@ name: Deploy Infra Terraform
 on:
   push:
     branches:
-      - main                  # Déploie auto à chaque push sur main (changement Terraform)
+      - master                  # Déploie auto à chaque push sur main (changement Terraform)
   workflow_dispatch:          # Bouton manuel dans GitHub
 
 permissions:
