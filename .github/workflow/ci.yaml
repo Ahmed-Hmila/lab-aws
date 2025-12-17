@@ -3,7 +3,7 @@ name: Deploy Infra & Lambda Image
 on:
   push:
     branches:
-      - main                  # Déploie auto à chaque push sur main
+      - master                  # Déploie auto à chaque push sur main
   workflow_dispatch:          # ← Permet de lancer manuellement (bouton dans GitHub)
 
 permissions:
