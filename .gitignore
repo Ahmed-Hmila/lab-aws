@@ -1,7 +1,7 @@
 # Terraform - NE JAMAIS committer
 .terraform/
 .terraform.lock.hcl    # Attends, NON : on veut le COMMITTER → on l'exclut pas
-
+terraform.tfvars
 # États Terraform - TRÈS sensible
 *.tfstate
 *.tfstate.*
