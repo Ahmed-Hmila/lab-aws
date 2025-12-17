@@ -1,0 +1,63 @@
+name: Deploy Infra & Lambda Image
+
+on:
+  push:
+    branches:
+      - master                  # Déploie auto à chaque push sur main
+  workflow_dispatch:          # ← Permet de lancer manuellement (bouton dans GitHub)
+
+permissions:
+  id-token: write           # Obligatoire pour OIDC
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      IMAGE_TAG: ${{ github.sha }}   # Tag unique : commit SHA
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Authentification AWS via OIDC (sécurisé)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions
+
+      # 2. Login ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+ 
+      # 4. Installer Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      # 5. Terraform Init & Apply dans env/dev
+      - name: Terraform Init
+        working-directory: ./infra/env/dev
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: ./infra/env/dev
+        run: terraform plan -var="image_uri=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Terraform Apply
+        working-directory: ./infra/env/dev
+        run: terraform apply -auto-approve -var="image_uri=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      # 6. Output l'URL de l'API
+      - name: Get API URL
+        working-directory: ./infra/env/dev
+        run: |
+          terraform output -raw api_url
+          terraform output -raw fastapi_docs
