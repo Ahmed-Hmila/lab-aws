@@ -28,6 +28,12 @@ variable "company_name" {
   default = "mycompany"
 }
 
+variable "image_uri" {
+  type        = string
+  description = "URI de l'image Docker ECR pour la Lambda"
+  default     = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:latest"
+}
+
 locals {
   default_tags = {
     project             = var.project_name
@@ -38,13 +44,11 @@ locals {
 
 # Module Lambda
 module "lambda" {
-  source = "../../module/lambda"
+  source        = "../../module/lambda"
   function_name = "myproject-dev-lambda"
-  image_uri     = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2"
-  tags = local.default_tags
-  # Ajoute d'autres params comme handler, runtime, etc.
+  image_uri     = var.image_uri   # ← Dynamique maintenant
+  tags          = local.default_tags
 }
-
 # Module API Gateway
 module "api_gateway" {
   source = "../../module/api-gateway"
@@ -54,6 +58,9 @@ module "api_gateway" {
   lambda_arn = module.lambda.lambda_arn
 }
 
+
+
+ 
 
 output "api_url" {
   value       = module.api_gateway.api_endpoint
