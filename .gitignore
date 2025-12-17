@@ -1,0 +1,40 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+*.tfvars          # Attention : on ignore les .tfvars par défaut pour ne pas committer de secrets
+!terraform.tfvars # Mais on autorise explicitement le fichier si tu veux le versionner (sans secrets !)
+
+# Variables sensibles (ne jamais committer !)
+*.tfvars
+secrets.tfvars
+*.auto.tfvars
+
+# Plan Terraform
+*.plan
+
+# Crash logs
+crash.log
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Python / autres dépendances locales (si tu ajoutes du code Lambda)
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.local
+
+# Logs
+*.log
+
+# Temporaires
+*.tmp
+*.bak
