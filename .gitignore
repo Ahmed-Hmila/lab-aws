@@ -26,7 +26,7 @@ infra/bootstrap/terraform.tfstate
 infra/bootstrap/terraform.tfstate.backup
 infra/bootstrap/.terraform/
 
-infra/env/dev/terraform.tfvars
+ 
 infra/env/dev/terraform.tfstate
 infra/env/dev/terraform.tfstate.backup
 infra/env/dev/.terraform/
