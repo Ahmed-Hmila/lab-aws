@@ -1,17 +1,4 @@
-variable "function_name" {
-  type = string
-}
-
-variable "tags" {
-  type = map(string)
-}
-
-variable "image_uri" {
-  type        = string
-  description = "URI de l'image ECR pour la Lambda container"
-  default     = ""   
-}
-
+ 
 resource "aws_iam_role" "lambda_role" {
   name = "${var.function_name}-role"
 
@@ -44,7 +31,4 @@ resource "aws_lambda_function" "lambda" {
 
   tags = var.tags
 }
-
-output "lambda_arn" {
-  value = aws_lambda_function.lambda.arn
-}
+ 

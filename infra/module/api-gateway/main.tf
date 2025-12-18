@@ -1,17 +1,4 @@
-variable "api_name" {
-  type = string
-}
-
-variable "tags" {
-  type = map(string)
-}
-
-variable "lambda_arn" {
-  type        = string
-  description = "ARN complet de la Lambda"
-}
-
-resource "aws_apigatewayv2_api" "api" {
+ resource "aws_apigatewayv2_api" "api" {
   name          = var.api_name
   protocol_type = "HTTP"
 
@@ -46,7 +33,4 @@ resource "aws_lambda_permission" "allow_apigw" {
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
-
-output "api_endpoint" {
-  value = aws_apigatewayv2_api.api.api_endpoint
-}
+ 

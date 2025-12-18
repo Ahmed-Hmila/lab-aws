@@ -1,6 +1,3 @@
-variable "repository_name" {
-  type = string
-}
 
 resource "aws_ecr_repository" "repo" {
   name                 = var.repository_name
@@ -11,6 +8,3 @@ resource "aws_ecr_repository" "repo" {
   }
 }
 
-output "repository_url" {
-  value = aws_ecr_repository.repo.repository_url
-}

@@ -1,29 +1,4 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "eu-west-3"   
-}
-
- 
-variable "github_repo" {
-  description = "GitHub repo au format owner/repo"
-  type        = string
-  default     = "yourusername/myproject"  
-}
-
-variable "account_id" {
-  description = "ID du compte AWS"
-  type        = string
-}
-
-# Module ECR (appelle le module ecr)
+ # Module ECR (appelle le module ecr)
 module "ecr" {
   source = "../module/ecr"
   repository_name = "myproject-repo"
@@ -86,6 +61,4 @@ resource "aws_iam_role_policy_attachment" "github_apigw" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
 }
 
-output "role_arn" {
-  value = aws_iam_role.github_actions_role.arn
-}
+ 
