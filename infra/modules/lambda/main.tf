@@ -23,9 +23,14 @@ resource "aws_lambda_function" "lambda" {
   function_name = var.function_name
   package_type  = "Image"
   image_uri     = var.image_uri
-
   role = aws_iam_role.lambda_role.arn
  
+  # <-- ATTACHEMENT AU VPC
+  vpc_config {
+    subnet_ids         = var.private_subnet_ids
+    security_group_ids = [var.lambda_sg_id]
+  }
+
 
   tags = var.tags
 }

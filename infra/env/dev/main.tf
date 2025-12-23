@@ -10,7 +10,7 @@ locals {
   }
 
   
- image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev"
+ image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2"
 }
 
 
@@ -40,6 +40,10 @@ module "lambda" {
   function_name = "${var.project_name}-${var.env}-lambda"
   image_uri     = local.image_uri    
   tags          = local.default_tags
+
+
+  private_subnet_ids   = module.vpc.private_subnets
+  lambda_sg_id         = module.vpc.lambda_sg_id
 }
 
 ##########################

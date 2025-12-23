@@ -20,3 +20,13 @@ variable "memory_size" {
   type    = number
   default = 1024
 }
+
+variable "private_subnet_ids" {
+  type = list(string)
+  description = "Subnets privés pour la Lambda"
+}
+
+variable "lambda_sg_id" {
+  type = string
+  description = "Groupe de sécurité pour la Lambda"
+}
