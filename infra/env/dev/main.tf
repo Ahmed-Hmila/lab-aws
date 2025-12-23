@@ -10,7 +10,7 @@ locals {
   }
 
   
-  image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev"
+  # image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev"
 }
 
 
@@ -38,7 +38,7 @@ module "lambda" {
   source = "../../modules/lambda"
 
   function_name = "${var.project_name}-${var.env}-lambda"
-  image_uri     = local.image_uri  
+  image_uri     = var.image_uri 
   tags          = local.default_tags
 }
 
