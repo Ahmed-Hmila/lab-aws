@@ -35,7 +35,7 @@ module "vpc" {
 # Module Lambda
 ##########################
 module "lambda" {
-  source = "../../module/lambda"
+  source = "../../modules/lambda"
 
   function_name = "${var.project_name}-${var.env}-lambda"
   image_uri     = local.image_uri  
@@ -46,7 +46,7 @@ module "lambda" {
 # Module API Gateway
 ##########################
 module "api_gateway" {
-  source = "../../module/api-gateway"
+  source = "../../modules/api-gateway"
 
   api_name               = "${var.project_name}-${var.env}-api"
   lambda_arn             = module.lambda.lambda_arn
