@@ -1,6 +1,6 @@
 # Module ECR
 module "ecr" {
-  source          = "../module/ecr"
+  source          = "../modules/ecr"
   repository_name = "myproject-repo"
 }
 
