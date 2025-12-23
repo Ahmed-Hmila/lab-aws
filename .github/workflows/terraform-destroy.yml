@@ -1,0 +1,40 @@
+name: Destroy Infra Terraform
+
+on:
+  workflow_dispatch:   
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-west-3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Authentification AWS via OIDC
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActionsDestroy
+
+      # Installer Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      # Terraform destroy dans env/dev
+      - name: Terraform Init
+        working-directory: ./infra/env/dev
+        run: terraform init
+
+      - name: Terraform Destroy
+        working-directory: ./infra/env/dev
+        run: terraform destroy -auto-approve
