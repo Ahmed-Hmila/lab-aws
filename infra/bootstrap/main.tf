@@ -1,6 +1,6 @@
 # Module ECR
 module "ecr" {
-  source          = "../module/ecr"
+  source          = "../modules/ecr"
   repository_name = "myproject-repo"
 }
 
@@ -53,6 +53,98 @@ resource "aws_iam_policy" "github_s3_terraform" {
     ]
   })
 }
+
+resource "aws_iam_policy" "github_terraform_infra" {
+  name        = "GitHubTerraformInfraAccess"
+  description = "Permissions nécessaires pour Terraform (VPC, IAM, Lambda, API Gateway)"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+
+      # ===== VPC / EC2 =====
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:CreateInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:CreateRouteTable",
+          "ec2:CreateRoute",
+          "ec2:AssociateRouteTable",
+          "ec2:DisassociateRouteTable",
+          "ec2:DeleteRouteTable",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:Describe*"
+        ]
+        Resource = "*"
+      },
+
+      # ===== IAM (rôle Lambda) =====
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:PassRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy"
+        ]
+        Resource = "*"
+      },
+
+      # ===== Lambda =====
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:UpdateFunctionCode",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:AddPermission",
+          "lambda:RemovePermission"
+        ]
+        Resource = "*"
+      },
+
+      # ===== API Gateway =====
+      {
+        Effect = "Allow"
+        Action = [
+          "apigateway:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "github_terraform" {
+  role       = aws_iam_role.github_actions_role.name
+  policy_arn = aws_iam_policy.github_terraform_infra.arn
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Attachement de la policy S3 au rôle
 resource "aws_iam_role_policy_attachment" "github_s3" {
