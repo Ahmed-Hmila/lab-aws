@@ -88,6 +88,7 @@ resource "aws_iam_policy" "github_terraform_infra" {
 
           "ec2:AllocateAddress",
           "ec2:ReleaseAddress",
+          "ec2:DisassociateAddress",
           "ec2:CreateNatGateway",
           "ec2:DeleteNatGateway",
 
@@ -111,10 +112,10 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "ec2:DetachNetworkInterface",
           "ec2:DeleteNetworkInterface",
           "ec2:DescribeNetworkInterfaces",
-
+          "ec2:DescribeAddresses",
+          "ec2:DescribeNatGateways",
           "ec2:CreateTags",
           "ec2:DeleteTags",
-
           "ec2:Describe*"
         ],
         Resource = "*"
@@ -129,7 +130,9 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "iam:GetRole",
           "iam:PassRole",
           "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy"
+          "iam:DetachRolePolicy",
+          "iam:ListInstanceProfilesForRole",
+          "iam:RemoveRoleFromInstanceProfile"
         ],
         Resource = "*"
       },
