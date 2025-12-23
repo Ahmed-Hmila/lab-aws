@@ -38,7 +38,7 @@ module "lambda" {
   source = "../../modules/lambda"
 
   function_name = "${var.project_name}-${var.env}-lambda"
-  image_uri     = var.image_uri 
+  image_uri     = local.image_uri    
   tags          = local.default_tags
 }
 
