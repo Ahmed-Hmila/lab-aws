@@ -16,7 +16,7 @@ jobs:
       TF_VAR_project_name: ${{ secrets.TF_VAR_project_name }}
       TF_VAR_team: ${{ secrets.TF_VAR_team }}
       TF_VAR_company_name: ${{ secrets.TF_VAR_company_name }}
-      TF_VAR_image_uri: 380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev
+      IMAGE_URI: 380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev
 
     steps:
       - name: Checkout code
