@@ -1,7 +1,7 @@
 variable "github_repo" {
   description = "GitHub repo au format owner/repo"
   type        = string
-  default     = "yourusername/myproject"  
+  default     = "Ahmed-Hmila/lab-aws"  
 }
 
 variable "account_id" {
