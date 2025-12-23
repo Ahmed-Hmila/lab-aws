@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: eu-west-3
+      TF_VAR_env: ${{ secrets.TF_VAR_env }}
+      TF_VAR_project_name: ${{ secrets.TF_VAR_project_name }}
+      TF_VAR_team: ${{ secrets.TF_VAR_team }}
+      TF_VAR_company_name: ${{ secrets.TF_VAR_company_name }}
+      ITF_VAR_image_uri: 380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
