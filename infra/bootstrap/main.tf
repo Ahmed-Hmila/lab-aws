@@ -1,22 +1,7 @@
- # Module ECR (appelle le module ecr)
+# Module ECR
 module "ecr" {
-  source = "../module/ecr"
+  source          = "../module/ecr"
   repository_name = "myproject-repo"
-}
-
-# OIDC Provider pour GitHub
-data "tls_certificate" "github" {
-  url = "https://token.actions.githubusercontent.com/.well-known/openid-configuration"
-}
-
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-
-  client_id_list = [
-    "sts.amazonaws.com",
-  ]
-
-  thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
 }
 
 # IAM Role pour GitHub Actions
@@ -29,7 +14,7 @@ resource "aws_iam_role" "github_actions_role" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:aws:iam::${var.account_id}:oidc-provider/token.actions.githubusercontent.com"
+          Federated = data.aws_iam_openid_connect_provider.github.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
@@ -45,7 +30,7 @@ resource "aws_iam_role" "github_actions_role" {
   })
 }
 
-# Attache des policies au rôle (ex: full access ECR, Lambda, API Gateway - ajuste pour least privilege)
+# Attache des policies au rôle (ajuster pour le moindre privilège)
 resource "aws_iam_role_policy_attachment" "github_ecr" {
   role       = aws_iam_role.github_actions_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
@@ -60,5 +45,3 @@ resource "aws_iam_role_policy_attachment" "github_apigw" {
   role       = aws_iam_role.github_actions_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
 }
-
- 

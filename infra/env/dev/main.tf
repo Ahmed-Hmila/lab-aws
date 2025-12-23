@@ -1,3 +1,6 @@
+##########################
+# Locals
+##########################
 locals {
   default_tags = {
     project                 = var.project_name
@@ -9,15 +12,39 @@ locals {
   
   image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:lambda-20251218090602-fastapi-data-eng-dev"
 }
- 
+
+
+##########################
+# Module VPC
+##########################
+module "vpc" {
+  source = "../../modules/vpc"
+
+  project_name = var.project_name
+  environment  = var.env
+
+  cidr = "10.0.0.0/16"
+  azs  = ["eu-west-3a", "eu-west-3b"]
+
+  create_db_subnet = false
+
+  default_tags = local.default_tags
+}
+
+##########################
+# Module Lambda
+##########################
 module "lambda" {
   source = "../../module/lambda"
 
   function_name = "${var.project_name}-${var.env}-lambda"
-  image_uri     = local.image_uri  # On utilise la valeur locale
+  image_uri     = local.image_uri  
   tags          = local.default_tags
 }
 
+##########################
+# Module API Gateway
+##########################
 module "api_gateway" {
   source = "../../module/api-gateway"
 

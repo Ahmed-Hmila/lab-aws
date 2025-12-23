@@ -24,8 +24,4 @@ variable "company_name" {
   type        = string
 }
 
-variable "image_uri" {
-  description = "URI ECR de l'image Docker Lambda (tag immutable)"
-  type        = string
-}
  

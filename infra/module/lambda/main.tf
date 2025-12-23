@@ -25,9 +25,7 @@ resource "aws_lambda_function" "lambda" {
   image_uri     = var.image_uri
 
   role = aws_iam_role.lambda_role.arn
-
-  timeout     = 60
-  memory_size = 1024  # Augmente un peu pour Python
+ 
 
   tags = var.tags
 }
