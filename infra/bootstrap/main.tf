@@ -106,6 +106,12 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "ec2:AssociateNetworkAcl",
           "ec2:DisassociateNetworkAcl",
 
+          "ec2:CreateNetworkInterface",
+          "ec2:AttachNetworkInterface",
+          "ec2:DetachNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+
           "ec2:CreateTags",
           "ec2:DeleteTags",
 
