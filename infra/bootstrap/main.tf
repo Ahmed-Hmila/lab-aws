@@ -83,6 +83,10 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "ec2:DeleteSecurityGroup",
           "ec2:AuthorizeSecurityGroupIngress",
           "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:Describe*",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:ModifyVpcAttribute",
           "ec2:Describe*"
         ]
         Resource = "*"
