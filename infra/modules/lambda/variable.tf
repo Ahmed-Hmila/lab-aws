@@ -9,7 +9,7 @@ variable "tags" {
 variable "image_uri" {
   type        = string
   description = "URI de l'image ECR pour la Lambda container"
-  default = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2" 
+  default = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:latest" 
 }
 variable "timeout" {
   type    = number

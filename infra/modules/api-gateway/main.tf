@@ -24,11 +24,11 @@ resource "aws_apigatewayv2_stage" "stage" {
   auto_deploy = true
 }
 
-# ← LA RESSOURCE MANQUANTE QUI RÈGLE TOUT
+ 
 resource "aws_lambda_permission" "allow_apigw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = split(":", var.lambda_arn)[6]  # Extrait le nom de la fonction
+  function_name = split(":", var.lambda_arn)[6]   
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"

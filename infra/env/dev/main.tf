@@ -10,7 +10,7 @@ locals {
   }
 
   
- image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/fastapi-lambda-app:v2"
+ image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:latest"
 }
 
 
