@@ -1,15 +1,9 @@
-
-output "api_url" {
-  value       = module.api_gateway.api_endpoint
-  description = "URL principale de ton API FastAPI"
+output "api_endpoint" {
+  description = "URL publique de l'API Gateway"
+  value       = aws_api_gateway_stage.stage.invoke_url
 }
 
-output "fastapi_docs" {
-  value       = "${module.api_gateway.api_endpoint}/docs"
-  description = "Swagger UI"
-}
-
-output "fastapi_openapi" {
-  value       = "${module.api_gateway.api_endpoint}/openapi.json"
-  description = "OpenAPI JSON"
+output "api_arn" {
+  description = "ARN d'exécution de l'API Gateway"
+  value       = aws_api_gateway_rest_api.api.execution_arn
 }
