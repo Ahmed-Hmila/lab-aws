@@ -1,36 +1,108 @@
- resource "aws_apigatewayv2_api" "api" {
-  name          = var.api_name
-  protocol_type = "HTTP"
-
+resource "aws_api_gateway_rest_api" "api" {
+  name = var.api_name
   tags = var.tags
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
-resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id             = aws_apigatewayv2_api.api.id
-  integration_type   = "AWS_PROXY"
-  integration_method = "POST"
-  integration_uri    = var.lambda_arn
+resource "aws_api_gateway_resource" "resource" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "submit"
 }
 
-resource "aws_apigatewayv2_route" "route" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "ANY /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+resource "aws_api_gateway_method" "method" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.resource.id
+  http_method   = "POST"
+  authorization = "NONE"
 }
 
-resource "aws_apigatewayv2_stage" "stage" {
-  api_id      = aws_apigatewayv2_api.api.id
-  name        = "$default"
-  auto_deploy = true
+# Rôle IAM pour permettre à API Gateway d'envoyer des messages à SQS
+resource "aws_iam_role" "apigw_sqs_role" {
+  name = "${var.api_name}-sqs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
- 
-resource "aws_lambda_permission" "allow_apigw" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = split(":", var.lambda_arn)[6]   
-  principal     = "apigateway.amazonaws.com"
+resource "aws_iam_role_policy" "apigw_sqs_policy" {
+  name = "apigw-sqs-policy"
+  role = aws_iam_role.apigw_sqs_role.id
 
-  source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "sqs:SendMessage"
+        Effect   = "Allow"
+        Resource = var.sqs_queue_arn
+      }
+    ]
+  })
 }
- 
+
+resource "aws_api_gateway_integration" "sqs_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.resource.id
+  http_method             = aws_api_gateway_method.method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS"
+  uri                     = "arn:aws:apigateway:${var.region}:sqs:path/${var.account_id}/${var.sqs_queue_name}"
+  credentials             = aws_iam_role.apigw_sqs_role.arn
+
+  request_parameters = {
+    "integration.request.header.Content-Type" = "'application/x-www-form-urlencoded'"
+  }
+
+  # Transformation du corps de la requête en format SQS
+  request_templates = {
+    "application/json" = "Action=SendMessage&MessageBody=$util.urlEncode($input.body)"
+  }
+}
+
+resource "aws_api_gateway_method_response" "200" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.resource.id
+  http_method = aws_api_gateway_method.method.http_method
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration_response" "sqs_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.resource.id
+  http_method = aws_api_gateway_method.method.http_method
+  status_code = aws_api_gateway_method_response.200.status_code
+
+  depends_on = [aws_api_gateway_integration.sqs_integration]
+}
+
+resource "aws_api_gateway_deployment" "deployment" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+
+  depends_on = [
+    aws_api_gateway_integration.sqs_integration
+  ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "stage" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  stage_name    = "prod"
+}

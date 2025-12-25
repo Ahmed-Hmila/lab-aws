@@ -30,3 +30,8 @@ variable "lambda_sg_id" {
   type = string
   description = "Groupe de sécurité pour la Lambda"
 }
+variable "sqs_queue_arn" {
+  description = "ARN de la file SQS pour le déclencheur"
+  type        = string
+  default     = ""
+}

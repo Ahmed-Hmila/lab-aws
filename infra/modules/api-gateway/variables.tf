@@ -1,15 +1,5 @@
 variable "api_name" {
-  description = "Nom de l'API Gateway HTTP"
-  type        = string
-}
-
-variable "lambda_arn" {
-  description = "ARN complet de la fonction Lambda"
-  type        = string
-}
-
-variable "lambda_function_name" {
-  description = "Nom de la fonction Lambda (sans ARN)"
+  description = "Nom de l'API Gateway REST"
   type        = string
 }
 
@@ -17,4 +7,24 @@ variable "tags" {
   description = "Tags communs aux ressources"
   type        = map(string)
   default     = {}
+}
+
+variable "sqs_queue_arn" {
+  description = "ARN de la file SQS"
+  type        = string
+}
+
+variable "sqs_queue_name" {
+  description = "Nom de la file SQS"
+  type        = string
+}
+
+variable "region" {
+  description = "Région AWS"
+  type        = string
+}
+
+variable "account_id" {
+  description = "ID du compte AWS"
+  type        = string
 }

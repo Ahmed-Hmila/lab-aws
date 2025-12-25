@@ -23,6 +23,18 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
+
+resource "aws_iam_role_policy_attachment" "lambda_sqs_access" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_trigger" {
+  event_source_arn = var.sqs_queue_arn
+  function_name    = aws_lambda_function.lambda.arn
+  enabled          = true
+  batch_size       = 10
+}
 resource "aws_lambda_function" "lambda" {
   function_name = var.function_name
   package_type  = "Image"

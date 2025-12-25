@@ -9,10 +9,11 @@ locals {
     "${var.company_name}:env" = var.env
   }
 
-  
- image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:latest"
+  image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:latest"
 }
 
+# Récupération des informations du compte courant
+data "aws_caller_identity" "current" {}
 
 ##########################
 # Module VPC
@@ -32,6 +33,17 @@ module "vpc" {
 }
 
 ##########################
+# Module SQS
+##########################
+module "sqs" {
+  source = "../../modules/sqs"
+
+  queue_name      = "${var.project_name}-${var.env}-queue"
+  api_gateway_arn = module.api_gateway.api_arn
+  tags            = local.default_tags
+}
+
+##########################
 # Module Lambda
 ##########################
 module "lambda" {
@@ -41,9 +53,9 @@ module "lambda" {
   image_uri     = local.image_uri    
   tags          = local.default_tags
 
-
   private_subnet_ids   = module.vpc.private_subnets
   lambda_sg_id         = module.vpc.lambda_sg_id
+  sqs_queue_arn        = module.sqs.queue_arn
 }
 
 ##########################
@@ -52,8 +64,10 @@ module "lambda" {
 module "api_gateway" {
   source = "../../modules/api-gateway"
 
-  api_name               = "${var.project_name}-${var.env}-api"
-  lambda_arn             = module.lambda.lambda_arn
-  lambda_function_name   = module.lambda.lambda_function_name
-  tags                   = local.default_tags
+  api_name       = "${var.project_name}-${var.env}-api"
+  sqs_queue_arn  = module.sqs.queue_arn
+  sqs_queue_name = module.sqs.queue_name
+  region         = var.aws_region
+  account_id     = data.aws_caller_identity.current.account_id
+  tags           = local.default_tags
 }
