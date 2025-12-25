@@ -73,7 +73,7 @@ resource "aws_api_gateway_integration" "sqs_integration" {
   }
 }
 
-resource "aws_api_gateway_method_response" "200" {
+resource "aws_api_gateway_method_response" "response_200" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.resource.id
   http_method = aws_api_gateway_method.method.http_method
@@ -84,7 +84,7 @@ resource "aws_api_gateway_integration_response" "sqs_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.resource.id
   http_method = aws_api_gateway_method.method.http_method
-  status_code = aws_api_gateway_method_response.200.status_code
+  status_code = aws_api_gateway_method_response.response_200.status_code
 
   depends_on = [aws_api_gateway_integration.sqs_integration]
 }
