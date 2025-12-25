@@ -129,6 +129,9 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "iam:DeleteRole",
           "iam:GetRole",
           "iam:PassRole",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:GetRolePolicy",
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy",
           "iam:ListInstanceProfilesForRole",
@@ -171,6 +174,7 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "sqs:SetQueueAttributes",
           "sqs:GetQueueUrl",
           "sqs:ListQueues",
+          "sqs:ListQueueTags",
           "sqs:TagQueue",
           "sqs:UntagQueue"
         ],

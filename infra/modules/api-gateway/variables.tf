@@ -28,3 +28,8 @@ variable "account_id" {
   description = "ID du compte AWS"
   type        = string
 }
+
+variable "lambda_arn" {
+  description = "ARN de la Lambda pour le proxy direct"
+  type        = string
+}

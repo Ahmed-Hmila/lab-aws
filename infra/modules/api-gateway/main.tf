@@ -93,12 +93,57 @@ resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 
   depends_on = [
-    aws_api_gateway_integration.sqs_integration
+    aws_api_gateway_integration.sqs_integration,
+    aws_api_gateway_integration.lambda_proxy
   ]
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.resource.id,
+      aws_api_gateway_method.method.id,
+      aws_api_gateway_integration.sqs_integration.id,
+      aws_api_gateway_resource.proxy.id,
+      aws_api_gateway_method.proxy_method.id,
+      aws_api_gateway_integration.lambda_proxy.id,
+    ]))
+  }
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+# --- CONFIGURATION PROXY POUR SWAGGER / FASTAPI ---
+
+resource "aws_api_gateway_resource" "proxy" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  path_part   = "{proxy+}"
+}
+
+resource "aws_api_gateway_method" "proxy_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.proxy.id
+  http_method   = "ANY"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda_proxy" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.proxy.id
+  http_method             = aws_api_gateway_method.proxy_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${var.lambda_arn}/invocations"
+}
+
+# Permission pour l'API Gateway d'appeler la Lambda
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = split(":", var.lambda_arn)[6]
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
 
 resource "aws_api_gateway_stage" "stage" {

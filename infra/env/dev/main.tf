@@ -67,6 +67,7 @@ module "api_gateway" {
   api_name       = "${var.project_name}-${var.env}-api"
   sqs_queue_arn  = module.sqs.queue_arn
   sqs_queue_name = module.sqs.queue_name
+  lambda_arn     = module.lambda.lambda_arn
   region         = var.aws_region
   account_id     = data.aws_caller_identity.current.account_id
   tags           = local.default_tags
