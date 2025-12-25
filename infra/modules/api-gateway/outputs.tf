@@ -1,6 +1,6 @@
 output "api_endpoint" {
   description = "URL publique de l'API Gateway"
-  value       = "${aws_api_gateway_deployment.deployment.invoke_url}${aws_api_gateway_stage.stage.stage_name}"
+  value       = aws_api_gateway_stage.stage.invoke_url
 }
 
 output "api_arn" {

@@ -159,6 +159,22 @@ resource "aws_iam_policy" "github_terraform_infra" {
           "apigateway:*"
         ],
         Resource = "*"
+      },
+
+      # ===== SQS =====
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:CreateQueue",
+          "sqs:DeleteQueue",
+          "sqs:GetQueueAttributes",
+          "sqs:SetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ListQueues",
+          "sqs:TagQueue",
+          "sqs:UntagQueue"
+        ],
+        Resource = "*"
       }
     ]
   })
