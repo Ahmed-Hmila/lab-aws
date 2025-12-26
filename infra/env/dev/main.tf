@@ -40,6 +40,7 @@ module "sqs" {
 
   queue_name      = "${var.project_name}-${var.env}-queue"
   api_gateway_arn = module.api_gateway.api_arn
+  apigw_sqs_role_arn = aws_iam_role.apigw_sqs_role.arn
   tags            = local.default_tags
 }
 
