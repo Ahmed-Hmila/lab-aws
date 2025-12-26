@@ -201,3 +201,15 @@ resource "aws_api_gateway_stage" "stage" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
   stage_name    = "prod"
 }
+
+########################################
+# Permission: API Gateway -> Lambda
+########################################
+resource "aws_lambda_permission" "allow_apigw_invoke" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_arn
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
