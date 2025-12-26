@@ -1,0 +1,123 @@
+# README - SimpleFastPyAPI
+
+## 📦 Architecture
+
+```
+CLIENT
+  |
+  v
+API GATEWAY
+ ├── POST /submit  ───▶  SQS  ───▶  Lambda (async)
+ ├── GET  /users    ───▶  Lambda (sync)
+ ├── POST /users    ───▶  Lambda (sync)
+ ├── PUT  /users/{id} ─▶  Lambda (sync)
+ └── DELETE /users/{id} ─▶  Lambda (sync)
+```
+
+* **POST /submit** : envoie des messages à SQS
+* **/users** : CRUD sur les utilisateurs
+* **Lambda + Mangum** : permet à FastAPI de tourner sur AWS Lambda
+* **Terraform** : déploie API Gateway, Lambda, SQS, IAM roles
+
+## ⚙️ Variables Terraform importantes
+
+* `queue_name` : nom de la file SQS
+* `api_gateway_arn` : ARN de l’API Gateway pour la politique SQS
+* `lambda_arn` : ARN de la Lambda
+* `apigw_sqs_role_arn` : ARN du rôle IAM pour permettre à API Gateway d’envoyer des messages à SQS
+
+## 🚀 Déploiement
+
+1. Initialiser Terraform :
+
+```bash
+terraform init
+```
+
+2. Planifier le déploiement :
+
+```bash
+terraform plan
+```
+
+3. Appliquer le déploiement :
+
+```bash
+terraform apply
+```
+
+## 🔗 Endpoints et test avec cURL
+
+Définir l’URL de base :
+
+```bash
+BASE_URL=https://<ton-api-id>.execute-api.eu-west-3.amazonaws.com/prod
+```
+
+### 1️⃣ GET /users
+
+```bash
+curl -i $BASE_URL/users/
+```
+
+* Retourne la liste des utilisateurs.
+
+### 2️⃣ GET /users/{id}
+
+```bash
+curl -i $BASE_URL/users/1
+```
+
+* Retourne l’utilisateur avec l’ID 1.
+
+### 3️⃣ POST /users
+
+```bash
+curl -i -X POST $BASE_URL/users/ \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "password1"
+}'
+```
+
+* Crée un nouvel utilisateur.
+
+### 4️⃣ PUT /users/{id}
+
+```bash
+curl -i -X PUT $BASE_URL/users/1 \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "Alice Updated",
+  "email": "alice-updated@example.com"
+}'
+```
+
+* Met à jour l’utilisateur avec l’ID 1.
+
+### 5️⃣ DELETE /users/{id}
+
+```bash
+curl -i -X DELETE $BASE_URL/users/1
+```
+
+* Supprime l’utilisateur avec l’ID 1.
+
+### 6️⃣ POST /submit (SQS)
+
+```bash
+curl -i -X POST $BASE_URL/submit \
+-H "Content-Type: application/json" \
+-d '{
+  "type": "user_created",
+  "user_id": 123,
+  "email": "test@test.com"
+}'
+```
+
+* Envoie un message à SQS.
+* Vérifier dans AWS SQS que le message est bien reçu.
+
+ 
