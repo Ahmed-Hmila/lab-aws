@@ -33,8 +33,7 @@ resource "aws_api_gateway_integration" "submit_sqs_integration" {
   integration_http_method = "POST"
   type                    = "AWS"
   uri                     = "arn:aws:apigateway:${var.region}:sqs:path/${var.account_id}/${var.sqs_queue_name}"
-  credentials             = aws_iam_role.apigw_sqs_role.arn
-
+  credentials             = var.apigw_sqs_role_arn
   request_parameters = {
     "integration.request.header.Content-Type" = "'application/x-www-form-urlencoded'"
   }
