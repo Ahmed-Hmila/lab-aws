@@ -17,14 +17,11 @@ resource "aws_sqs_queue_policy" "queue_policy" {
     Statement = [
       {
         Effect = "Allow"
-        Principal = "*"
-        Action = "sqs:SendMessage"
-        Resource = aws_sqs_queue.queue.arn
-        Condition = {
-          ArnEquals = {
-            "aws:SourceArn" = var.api_gateway_arn
-          }
+        Principal = {
+          AWS = var.apigw_sqs_role_arn
         }
+        Action   = "sqs:SendMessage"
+        Resource = aws_sqs_queue.queue.arn
       }
     ]
   })

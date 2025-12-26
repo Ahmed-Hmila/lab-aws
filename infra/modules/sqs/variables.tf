@@ -13,3 +13,7 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+variable "apigw_sqs_role_arn" {
+  description = "ARN du rôle IAM pour permettre à API Gateway d'envoyer des messages à SQS"
+  type        = string
+}
