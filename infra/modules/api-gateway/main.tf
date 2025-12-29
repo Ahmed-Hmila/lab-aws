@@ -33,7 +33,7 @@ resource "aws_api_gateway_integration" "submit_sqs_integration" {
   integration_http_method = "POST"
   type                    = "AWS"
   uri                     = "arn:aws:apigateway:${var.region}:sqs:path/${var.account_id}/${var.sqs_queue_name}"
-  credentials             = var.apigw_sqs_role_arn
+  credentials             = aws_iam_role.apigw_sqs_role.arn
   request_parameters = {
     "integration.request.header.Content-Type" = "'application/x-www-form-urlencoded'"
   }
@@ -212,4 +212,38 @@ resource "aws_lambda_permission" "allow_apigw_invoke" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
+
+
+resource "aws_iam_role" "apigw_sqs_role" {
+  name = "${var.api_name}-apigw-sqs-role"  # Ou un nom basé sur var.api_name pour l'unicité
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "apigw_sqs_policy" {
+  name = "sqs-sendmessage-policy"
+  role = aws_iam_role.apigw_sqs_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "sqs:SendMessage"
+        Resource = var.sqs_queue_arn  # Utilise l'ARN de la queue passé en input
+      }
+    ]
+  })
 }

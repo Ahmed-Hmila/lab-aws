@@ -34,7 +34,4 @@ variable "lambda_arn" {
   type        = string
 }
 
-variable "apigw_sqs_role_arn" {
-  description = "ARN du rôle IAM pour permettre à API Gateway d'envoyer des messages à SQS"
-  type        = string
-}
+ 

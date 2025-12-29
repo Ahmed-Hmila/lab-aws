@@ -9,20 +9,4 @@ resource "aws_sqs_queue" "queue" {
   tags = var.tags
 }
 
-resource "aws_sqs_queue_policy" "queue_policy" {
-  queue_url = aws_sqs_queue.queue.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = var.apigw_sqs_role_arn
-        }
-        Action   = "sqs:SendMessage"
-        Resource = aws_sqs_queue.queue.arn
-      }
-    ]
-  })
-}
+ 

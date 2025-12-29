@@ -41,9 +41,11 @@ module "sqs" {
 
   queue_name      = "${var.project_name}-${var.env}-queue"
   api_gateway_arn = module.api_gateway.api_arn
-  apigw_sqs_role_arn = aws_iam_role.apigw_sqs_role.arn
+  # apigw_sqs_role_arn supprimé si tu changes la policy
   tags            = local.default_tags
 }
+
+
 
 ##########################
 # Module Lambda
@@ -60,25 +62,7 @@ module "lambda" {
   sqs_queue_arn        = module.sqs.queue_arn
 }
 
-##########################
-# Rôle IAM pour API Gateway -> SQS
-##########################
-resource "aws_iam_role" "apigw_sqs_role" {
-  name = "${var.project_name}-apigw-sqs-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "apigateway.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
+ 
 
 ##########################
 # Module API Gateway
@@ -94,5 +78,5 @@ module "api_gateway" {
   account_id        = data.aws_caller_identity.current.account_id
   tags              = local.default_tags
 
-  apigw_sqs_role_arn = aws_iam_role.apigw_sqs_role.arn
+  # apigw_sqs_role_arn supprimé
 }
