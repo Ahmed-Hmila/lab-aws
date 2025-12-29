@@ -6,7 +6,7 @@ locals {
     project                 = var.project_name
     team                    = var.team
     environment             = var.env
-    "${var.company_name}:env" = var.env
+    "${var.company_name}" = var.env
   }
 
   image_uri = "380426548948.dkr.ecr.eu-west-3.amazonaws.com/myproject-repo:latest"
