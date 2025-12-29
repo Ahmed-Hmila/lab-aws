@@ -59,7 +59,27 @@ module "lambda" {
   lambda_sg_id         = module.vpc.lambda_sg_id
   sqs_queue_arn        = module.sqs.queue_arn
 }
- 
+
+##########################
+# Rôle IAM pour API Gateway -> SQS
+##########################
+resource "aws_iam_role" "apigw_sqs_role" {
+  name = "${var.project_name}-apigw-sqs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "apigateway.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
 ##########################
 # Module API Gateway
 ##########################
