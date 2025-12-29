@@ -213,3 +213,23 @@ resource "aws_lambda_permission" "allow_apigw_invoke" {
 
   source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
+
+##########################
+# Rôle IAM pour API Gateway -> SQS
+##########################
+resource "aws_iam_role" "apigw_sqs_role" {
+  name = "${var.api_name}-sqs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = "sts:AssumeRole"
+      Principal = {
+        Service = "apigateway.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = var.tags
+}
