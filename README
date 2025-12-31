@@ -1,78 +1,47 @@
-# README - SimpleFastPyAPI
+# AWS Serverless API – FastAPI, Lambda & Terraform
+
+## 📝 Description
+Ce projet met en place une API serverless sur AWS basée sur FastAPI, déployée sur AWS Lambda via Mangum et exposée par API Gateway. Une route asynchrone permet l’envoi de messages vers Amazon SQS, tandis que les autres routes exposent un CRUD utilisateur synchrone. L’infrastructure est entièrement déployée avec Terraform.
 
 ## 📦 Architecture
-
-```
 CLIENT
-  |
-  v
+|
+v
 API GATEWAY
- ├── POST /submit  ───▶  SQS  ───▶  Lambda (async)
- ├── GET  /users    ───▶  Lambda (sync)
- ├── POST /users    ───▶  Lambda (sync)
- ├── PUT  /users/{id} ─▶  Lambda (sync)
- └── DELETE /users/{id} ─▶  Lambda (sync)
-```
+├── POST /submit ───▶ SQS ───▶ Lambda (async)
+├── GET /users ───▶ Lambda (sync)
+├── POST /users ───▶ Lambda (sync)
+├── PUT /users/{id} ───▶ Lambda (sync)
+└── DELETE /users/{id} ───▶ Lambda (sync)
 
-* **POST /submit** : envoie des messages à SQS
-* **/users** : CRUD sur les utilisateurs
-* **Lambda + Mangum** : permet à FastAPI de tourner sur AWS Lambda
-* **Terraform** : déploie API Gateway, Lambda, SQS, IAM roles
+
+POST /submit : envoie des messages vers une file SQS  
+/users : API CRUD pour la gestion des utilisateurs  
+Lambda + Mangum : permet d’exécuter FastAPI sur AWS Lambda  
+Terraform : déploie API Gateway, Lambda, SQS et les rôles IAM  
 
 ## ⚙️ Variables Terraform importantes
-
-* `queue_name` : nom de la file SQS
-* `api_gateway_arn` : ARN de l’API Gateway pour la politique SQS
-* `lambda_arn` : ARN de la Lambda
-* `apigw_sqs_role_arn` : ARN du rôle IAM pour permettre à API Gateway d’envoyer des messages à SQS
+queue_name : nom de la file SQS  
+api_gateway_arn : ARN de l’API Gateway pour la politique SQS  
+lambda_arn : ARN de la fonction Lambda  
+apigw_sqs_role_arn : ARN du rôle IAM autorisant API Gateway à envoyer des messages vers SQS  
 
 ## 🚀 Déploiement
+terraform init  
+terraform plan  
+terraform apply  
 
-1. Initialiser Terraform :
-
-```bash
-terraform init
-```
-
-2. Planifier le déploiement :
-
-```bash
-terraform plan
-```
-
-3. Appliquer le déploiement :
-
-```bash
-terraform apply
-```
-
-## 🔗 Endpoints et test avec cURL
-
+## 🔗 Endpoints & tests avec cURL
 Définir l’URL de base :
+BASE_URL=https://<ton-api-id>.execute-api.eu-west-3.amazonaws.com/prod  
 
-```bash
-BASE_URL=https://<ton-api-id>.execute-api.eu-west-3.amazonaws.com/prod
-```
+GET /users  
+curl -i $BASE_URL/users/  
 
-### 1️⃣ GET /users
+GET /users/{id}  
+curl -i $BASE_URL/users/1  
 
-```bash
-curl -i $BASE_URL/users/
-```
-
-* Retourne la liste des utilisateurs.
-
-### 2️⃣ GET /users/{id}
-
-```bash
-curl -i $BASE_URL/users/1
-```
-
-* Retourne l’utilisateur avec l’ID 1.
-
-### 3️⃣ POST /users
-
-```bash
+POST /users  
 curl -i -X POST $BASE_URL/users/ \
 -H "Content-Type: application/json" \
 -d '{
@@ -80,34 +49,19 @@ curl -i -X POST $BASE_URL/users/ \
   "email": "alice@example.com",
   "password": "password1"
 }'
-```
 
-* Crée un nouvel utilisateur.
-
-### 4️⃣ PUT /users/{id}
-
-```bash
+PUT /users/{id}  
 curl -i -X PUT $BASE_URL/users/1 \
 -H "Content-Type: application/json" \
 -d '{
   "name": "Alice Updated",
   "email": "alice-updated@example.com"
 }'
-```
 
-* Met à jour l’utilisateur avec l’ID 1.
+DELETE /users/{id}  
+curl -i -X DELETE $BASE_URL/users/1  
 
-### 5️⃣ DELETE /users/{id}
-
-```bash
-curl -i -X DELETE $BASE_URL/users/1
-```
-
-* Supprime l’utilisateur avec l’ID 1.
-
-### 6️⃣ POST /submit (SQS)
-
-```bash
+POST /submit (SQS)  
 curl -i -X POST $BASE_URL/submit \
 -H "Content-Type: application/json" \
 -d '{
@@ -115,9 +69,6 @@ curl -i -X POST $BASE_URL/submit \
   "user_id": 123,
   "email": "test@test.com"
 }'
-```
 
-* Envoie un message à SQS.
-* Vérifier dans AWS SQS que le message est bien reçu.
-
- 
+## 🛠️ Technologies utilisées
+AWS Lambda, API Gateway (REST), Amazon SQS, FastAPI, Mangum, Terraform
